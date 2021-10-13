@@ -2,11 +2,14 @@ import { Button } from "@material-ui/core";
 import styled from "styled-components";
 import chatImg from "../assets/chat.png";
 import { auth, googleAuthProvider } from "../firebase-config";
+import { setUsers } from "../redux/actions";
+import { useDispatch } from "react-redux";
 function Login() {
+  const dispatch = useDispatch();
   const signIn = () => {
     auth
       .signInWithPopup(googleAuthProvider)
-      .then((res) => console.log(res))
+      .then((res) => dispatch(setUsers(res.user)))
       .catch((err) => console.log(err));
   };
   return (

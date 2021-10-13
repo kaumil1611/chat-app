@@ -1,15 +1,19 @@
-import React, { useEffect } from "react";
+import React from "react";
 import "./App.css";
 import Sidebar from "./Sidebar";
 import Chat from "./Chat";
-/* import Login from "./Login";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
+import Login from "./Login";
+import { useSelector } from "react-redux";
+/*import { useAuthState } from "react-firebase-hooks/auth";
 import { auth } from "../firebase-config";
 import db from "../firebase-config";
 import firebase from "firebase/compat/app";
 import Loading from "./Loading"; */
 
 function App() {
+  const { user } = useSelector((state) => state.userData);
+
   /*  const [user, loading] = useAuthState(auth);
 
   useEffect(() => {
@@ -30,18 +34,28 @@ function App() {
   }, [user]);
   if (loading) return <Loading />;
   if (!user) return <Login />; */
-  return (
-    <div className="app">
-      <div className="app__body">
-        {/* side bar */}
-        <Sidebar />
-        {/* side bar */}
 
-        {/* chat */}
-        <Chat />
-        {/* chat */}
-      </div>
-    </div>
+  return (
+    <React.Fragment>
+      {!user && <Login />}
+      {user && (
+        <React.Fragment>
+          <div className="app">
+            <div className="app__body">
+              <Router>
+                <Sidebar />
+                <Switch>
+                  <Route exact path="/rooms/:roomId">
+                    <Chat />
+                  </Route>
+                  <Route path="/" />
+                </Switch>
+              </Router>
+            </div>
+          </div>
+        </React.Fragment>
+      )}
+    </React.Fragment>
   );
 }
 
