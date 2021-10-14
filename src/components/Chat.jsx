@@ -52,7 +52,12 @@ const Chat = () => {
         />
         <div className="header__info">
           <h3>{roomName}</h3>
-          <p>Last Seen at</p>
+          <p>
+            Last Seen{" "}
+            {new Date(
+              chatMessages[chatMessages.length - 1]?.timestamp?.toDate()
+            ).toUTCString()}
+          </p>
         </div>
         <div className="chat__headerRight">
           <IconButton>
@@ -73,6 +78,7 @@ const Chat = () => {
               chatMessages[message].name === user.displayName && "chat__reciver"
             }`}
             id={message}
+            key={message}
           >
             <span className="chat__name">{chatMessages[message].name}</span>
             {chatMessages[message].message}

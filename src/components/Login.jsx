@@ -4,14 +4,26 @@ import chatImg from "../assets/chat.png";
 import { auth, googleAuthProvider } from "../firebase-config";
 import { setUsers } from "../redux/actions";
 import { useDispatch } from "react-redux";
+import { useEffect } from "react";
+import { toast } from "react-toastify";
+
 function Login() {
   const dispatch = useDispatch();
   const signIn = () => {
     auth
       .signInWithPopup(googleAuthProvider)
-      .then((res) => dispatch(setUsers(res.user)))
-      .catch((err) => console.log(err));
+      // .then((res) => console.log(res))
+      .catch((err) => toast.error("login failed", err));
   };
+  useEffect(() => {
+    auth.onAuthStateChanged(function (user) {
+      if (user) {
+        dispatch(setUsers(user));
+      } else {
+        toast.error("No User Found!!");
+      }
+    });
+  }, [dispatch]);
   return (
     <Container>
       <title>Login</title>
