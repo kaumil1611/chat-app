@@ -34,7 +34,7 @@ const Chat = () => {
 
   const sendMessage = (e) => {
     e.preventDefault();
-    console.log("msg >>> ", input);
+
     db.collection("message-room").doc(roomId).collection("messages").add({
       message: input,
       name: user.displayName,
@@ -53,7 +53,7 @@ const Chat = () => {
         <div className="header__info">
           <h3>{roomName}</h3>
           <p>
-            Last Seen{" "}
+            Last Seen
             {new Date(
               chatMessages[chatMessages.length - 1]?.timestamp?.toDate()
             ).toUTCString()}

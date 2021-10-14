@@ -11,6 +11,8 @@ import db from "../firebase-config";
 
 const Sidebar = () => {
   const [messageRoom, setMessageRoom] = useState([]);
+  const [filtered, setFiltered] = useState([]);
+  const [searchMessage, setSearchMessage] = useState("");
   const { user } = useSelector((state) => state.userData);
 
   useEffect(() => {
@@ -27,6 +29,15 @@ const Sidebar = () => {
       unsubscribe();
     };
   }, []);
+
+  const handleSearch = (value) => {
+    setSearchMessage(value);
+    const one = messageRoom.filter((item) => item.data.name.includes(value));
+    if (Array.isArray(one) && one.length > 0) {
+      setFiltered(one);
+    }
+  };
+
   return (
     <div className="sidebar">
       <div className="sidebar__header">
@@ -46,14 +57,29 @@ const Sidebar = () => {
       <div className="sidebar__search">
         <div className="sidebar__SearchContainer">
           <SearchOutlined />
-          <input placeholder="Search or Start new chat" type="text " />
+          <input
+            placeholder="Search or Start new chat"
+            type="text"
+            value={searchMessage}
+            onChange={(e) => {
+              handleSearch(e.target.value);
+            }}
+          />
         </div>
       </div>
       <div className="sidebar__chats">
         <SidebarChat addNewChat />
-        {messageRoom.map((room) => (
-          <SidebarChat key={room.id} id={room.id} name={room.data.name} />
-        ))}
+        {searchMessage.length === 0
+          ? messageRoom.map((room) => {
+              return (
+                <SidebarChat key={room.id} id={room.id} name={room.data.name} />
+              );
+            })
+          : filtered.map((room) => {
+              return (
+                <SidebarChat key={room.id} id={room.id} name={room.data.name} />
+              );
+            })}
       </div>
     </div>
   );
