@@ -1,4 +1,4 @@
 export const ActionTypes = {
   SET_USER: "SET_USER",
-  LOADING_TOGGLE_ACTION: "LOADING_TOGGLE_ACTION",
+  LOGOUT_USER: "LOGOUT_USER",
 };

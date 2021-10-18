@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from "react";
 import "./Sidebar.css";
 import SidebarChat from "./SidebarChat";
-import { Avatar, IconButton } from "@material-ui/core";
+import { Avatar, IconButton, Menu, MenuItem } from "@material-ui/core";
 import DonutLargeIcon from "@material-ui/icons/DonutLarge";
 import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { SearchOutlined } from "@material-ui/icons";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import db from "../../firebase-config";
+import { auth } from "../../firebase-config";
+import { logoutUser } from "../../redux/actions";
 
 const Sidebar = () => {
+  const [open, setOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(false);
   const [messageRoom, setMessageRoom] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [searchMessage, setSearchMessage] = useState("");
   const { user } = useSelector((state) => state.userData);
-  console.log(user);
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     const unsubscribe = db.collection("message-room").onSnapshot((snapshot) =>
       setMessageRoom(
@@ -52,7 +58,28 @@ const Sidebar = () => {
             <ChatIcon />
           </IconButton>
           <IconButton>
-            <MoreVertIcon />
+            <MoreVertIcon
+              onClick={(e) => {
+                setOpen(true);
+                setAnchorEl(e.currentTarget);
+              }}
+            />
+            <Menu
+              id="simple-menu"
+              anchorEl={anchorEl}
+              keepMounted
+              open={open}
+              onClose={() => setOpen(false)}
+            >
+              <MenuItem
+                onClick={() => {
+                  auth.signOut();
+                  dispatch(logoutUser());
+                }}
+              >
+                Logout
+              </MenuItem>
+            </Menu>
           </IconButton>
         </div>
       </div>
