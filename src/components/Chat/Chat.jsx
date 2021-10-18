@@ -7,12 +7,21 @@ import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 import MicIcon from "@material-ui/icons/Mic";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
+// import firebase from "@firebase/app-compat";
+// import firebase from "@firebase/app-compat";
 import firebase from "@firebase/app-compat";
-import db from "../firebase-config";
+import db from "../../firebase-config";
+import "emoji-mart/css/emoji-mart.css";
+import { Picker } from "emoji-mart";
+import OutsideClickHandler from "react-outside-click-handler";
+
 const Chat = () => {
+  console.log(firebase.firestore.FieldValue.serverTimestamp());
   const [input, setInput] = useState("");
   const [roomName, setRoomName] = useState("");
   const [chatMessages, setMessages] = useState("");
+  const [openEmoji, setOpenEmoji] = useState(false);
+
   const { roomId } = useParams();
   const { user } = useSelector((state) => state.userData);
 
@@ -46,9 +55,7 @@ const Chat = () => {
     <div className="chat">
       <div className="chat__header">
         <Avatar
-          src={`https://avatars.dicebear.com/api/human/${Math.floor(
-            Math.random() * 5000
-          )}.svg`}
+          src={`https://i.pravatar.cc/500/${Math.floor(Math.random() * 5000)}`}
         />
         <div className="header__info">
           <h3>{roomName}</h3>
@@ -85,13 +92,33 @@ const Chat = () => {
             <span className="chat__timestamp">
               {new Date(
                 chatMessages[message].timestamp?.toDate()
-              ).toUTCString()}{" "}
+              ).toUTCString()}
             </span>
           </p>
         ))}
       </div>
       <div className="chat__footer">
-        <InsertEmoticonIcon />
+        <InsertEmoticonIcon
+          onClick={() => setOpenEmoji(true)}
+          style={{ cursor: "pointer" }}
+        />
+        {openEmoji && (
+          <OutsideClickHandler
+            onOutsideClick={() => {
+              setOpenEmoji(false);
+            }}
+          >
+            <Picker
+              onSelect={(e) => setInput(`${input}${e.native}`)}
+              style={{
+                position: "absolute",
+                bottom: "130px",
+
+                objectFit: "contain",
+              }}
+            />
+          </OutsideClickHandler>
+        )}
         <form>
           <input
             type="text"

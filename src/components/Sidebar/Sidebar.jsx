@@ -7,14 +7,14 @@ import ChatIcon from "@material-ui/icons/Chat";
 import MoreVertIcon from "@material-ui/icons/MoreVert";
 import { SearchOutlined } from "@material-ui/icons";
 import { useSelector } from "react-redux";
-import db from "../firebase-config";
+import db from "../../firebase-config";
 
 const Sidebar = () => {
   const [messageRoom, setMessageRoom] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [searchMessage, setSearchMessage] = useState("");
   const { user } = useSelector((state) => state.userData);
-
+  console.log(user);
   useEffect(() => {
     const unsubscribe = db.collection("message-room").onSnapshot((snapshot) =>
       setMessageRoom(
@@ -32,9 +32,11 @@ const Sidebar = () => {
 
   const handleSearch = (value) => {
     setSearchMessage(value);
-    const one = messageRoom.filter((item) => item.data.name.includes(value));
-    if (Array.isArray(one) && one.length > 0) {
-      setFiltered(one);
+    const filterMSG = messageRoom.filter((item) =>
+      item.data.name.includes(value)
+    );
+    if (Array.isArray(filterMSG) && filterMSG.length > 0) {
+      setFiltered(filterMSG);
     }
   };
 
