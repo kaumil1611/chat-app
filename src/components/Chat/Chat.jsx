@@ -13,8 +13,10 @@ import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 import OutsideClickHandler from "react-outside-click-handler";
 import { useDropzone } from "react-dropzone";
-import { storageRef } from "../../firebase-config";
+import { storage } from "../../firebase-config";
 import { uploadBytes, getDownloadURL } from "firebase/storage";
+import { ref } from "firebase/storage";
+import { toast } from "react-toastify";
 const Chat = () => {
   const [input, setInput] = useState("");
   const [roomName, setRoomName] = useState("");
@@ -25,21 +27,26 @@ const Chat = () => {
   const { displayName } = user;
   const onDrop = useCallback(
     (acceptedFiles) => {
-      uploadBytes(storageRef, acceptedFiles[0])
-        .then((snapshot) => {
-          console.log("Uploaded a blob or file!", snapshot.ref);
-          getDownloadURL(snapshot.ref).then((url) => {
-            db.collection("message-room")
-              .doc(roomId)
-              .collection("messages")
-              .add({
-                name: displayName,
-                image: url,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-              });
-          });
-        })
-        .catch((err) => console.log("error", err));
+      console.log(acceptedFiles);
+      if (acceptedFiles[0].type === "image/png") {
+        const storageRef = ref(storage, `images/${acceptedFiles[0].name}`);
+        uploadBytes(storageRef, acceptedFiles[0])
+          .then((snapshot) => {
+            getDownloadURL(snapshot.ref).then((url) => {
+              db.collection("message-room")
+                .doc(roomId)
+                .collection("messages")
+                .add({
+                  name: displayName,
+                  image: url,
+                  timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                });
+            });
+          })
+          .catch((err) => console.log("error", err));
+      } else {
+        toast.warning("please select image file");
+      }
     },
     [displayName, roomId]
   );
@@ -115,6 +122,7 @@ const Chat = () => {
             key={message}
           >
             <span className="chat__name">{chatMessages[message].name}</span>
+            {console.log(chatMessages[message].image)}
             {chatMessages[message].image ? (
               <img
                 src={chatMessages[message].image}

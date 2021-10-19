@@ -5,7 +5,8 @@ import Chat from "../components/Chat/Chat";
 import { BrowserRouter as Router, Route, Switch } from "react-router-dom";
 import Login from "../components/Auth/Login";
 import { useSelector } from "react-redux";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 /*;
 
 import db from "../firebase-config";
@@ -25,6 +26,8 @@ function App() {
             <div className="app__body">
               <Router>
                 <Sidebar />
+                <ToastContainer position="center-top" />
+
                 <Switch>
                   <Route exact path="/rooms/:roomId">
                     <Chat />
