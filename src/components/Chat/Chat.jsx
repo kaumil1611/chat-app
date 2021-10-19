@@ -1,29 +1,46 @@
-import React, { useState, useEffect } from "react";
-import { Avatar, IconButton } from "@material-ui/core";
+import React, { useState, useEffect, useCallback } from "react";
 import "./Chat.css";
-import { AttachFile, SearchOutlined } from "@material-ui/icons";
-import MoreVert from "@material-ui/icons/MoreVert";
+import { Avatar, IconButton } from "@material-ui/core";
+import { MoreVert, AttachFile, SearchOutlined } from "@material-ui/icons";
+// import MoreVert from "@material-ui/icons/MoreVert";
 import InsertEmoticonIcon from "@material-ui/icons/InsertEmoticon";
 import MicIcon from "@material-ui/icons/Mic";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
-// import firebase from "@firebase/app-compat";
-// import firebase from "@firebase/app-compat";
 import firebase from "@firebase/app-compat";
 import db from "../../firebase-config";
 import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 import OutsideClickHandler from "react-outside-click-handler";
+import { useDropzone } from "react-dropzone";
 
 const Chat = () => {
-  console.log(firebase.firestore.FieldValue.serverTimestamp());
   const [input, setInput] = useState("");
   const [roomName, setRoomName] = useState("");
   const [chatMessages, setMessages] = useState("");
   const [openEmoji, setOpenEmoji] = useState(false);
-
   const { roomId } = useParams();
   const { user } = useSelector((state) => state.userData);
+  const { displayName } = user;
+  const onDrop = useCallback(
+    (acceptedFiles) => {
+      db.collection("message-room")
+        .doc(roomId)
+        .collection("messages")
+        .add({
+          name: displayName,
+          image: URL.createObjectURL(acceptedFiles[0]),
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+    },
+    [displayName, roomId]
+  );
+
+  const { getRootProps, getInputProps } = useDropzone({
+    onDrop,
+    multiple: false,
+    accept: "image/jpeg, image/png , audio/mpeg ",
+  });
 
   useEffect(() => {
     if (roomId) {
@@ -43,7 +60,6 @@ const Chat = () => {
 
   const sendMessage = (e) => {
     e.preventDefault();
-
     db.collection("message-room").doc(roomId).collection("messages").add({
       message: input,
       name: user.displayName,
@@ -51,6 +67,7 @@ const Chat = () => {
     });
     setInput("");
   };
+
   return (
     <div className="chat">
       <div className="chat__header">
@@ -70,7 +87,8 @@ const Chat = () => {
           <IconButton>
             <SearchOutlined />
           </IconButton>
-          <IconButton>
+          <IconButton {...getRootProps()}>
+            <input {...getInputProps()} />
             <AttachFile />
           </IconButton>
           <IconButton>
@@ -78,6 +96,7 @@ const Chat = () => {
           </IconButton>
         </div>
       </div>
+
       <div className="chat__body">
         {Object.keys(chatMessages).map((message) => (
           <p
@@ -88,6 +107,16 @@ const Chat = () => {
             key={message}
           >
             <span className="chat__name">{chatMessages[message].name}</span>
+            {chatMessages[message].image ? (
+              <img
+                src={chatMessages[message].image}
+                alt=""
+                width={100}
+                height={100}
+              />
+            ) : (
+              ""
+            )}
             {chatMessages[message].message}
             <span className="chat__timestamp">
               {new Date(
