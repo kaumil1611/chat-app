@@ -13,7 +13,8 @@ import "emoji-mart/css/emoji-mart.css";
 import { Picker } from "emoji-mart";
 import OutsideClickHandler from "react-outside-click-handler";
 import { useDropzone } from "react-dropzone";
-
+import { storageRef } from "../../firebase-config";
+import { uploadBytes, getDownloadURL } from "firebase/storage";
 const Chat = () => {
   const [input, setInput] = useState("");
   const [roomName, setRoomName] = useState("");
@@ -24,14 +25,21 @@ const Chat = () => {
   const { displayName } = user;
   const onDrop = useCallback(
     (acceptedFiles) => {
-      db.collection("message-room")
-        .doc(roomId)
-        .collection("messages")
-        .add({
-          name: displayName,
-          image: URL.createObjectURL(acceptedFiles[0]),
-          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        });
+      uploadBytes(storageRef, acceptedFiles[0])
+        .then((snapshot) => {
+          console.log("Uploaded a blob or file!", snapshot.ref);
+          getDownloadURL(snapshot.ref).then((url) => {
+            db.collection("message-room")
+              .doc(roomId)
+              .collection("messages")
+              .add({
+                name: displayName,
+                image: url,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+              });
+          });
+        })
+        .catch((err) => console.log("error", err));
     },
     [displayName, roomId]
   );

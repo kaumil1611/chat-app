@@ -1,7 +1,7 @@
 import firebase from "firebase/compat/app";
 import "firebase/compat/auth";
 import "firebase/compat/firestore";
-
+import { getStorage, ref } from "firebase/storage";
 const firebaseConfig = {
   apiKey: process.env.REACT_APP_API,
   authDomain: process.env.REACT_APP_AUTH_DOMAIN,
@@ -16,6 +16,9 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const auth = firebase.auth();
 const googleAuthProvider = new firebase.auth.GoogleAuthProvider();
+const storage = getStorage();
 
-export { auth, googleAuthProvider };
+// Create a storage reference from our storage service
+const storageRef = ref(storage, "images/file.jpg");
+export { auth, googleAuthProvider, storageRef };
 export default db;
